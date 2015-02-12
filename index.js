@@ -19,14 +19,21 @@ function SlowStream (options) {
   this._timeout   = null
   this._ended     = false
   this._paused    = false
+  
+  this._writeCount = 0;
 }
 
 util.inherits(SlowStream, Stream)
 
 SlowStream.prototype.write = function write (data) {
-  this.queue.push(data)
-  this.flush()
-  return this.queue.length === 0
+    if(this.options.forceErrorAfter && this._writeCount > this.options.forceErrorAfter) {
+      this.emit('error', new Error( "Forced StreamError" ));
+  }else {
+    this._writeCount++;
+    this.queue.push(data)
+    this.flush()
+    return this.queue.length === 0
+  }
 }
 
 SlowStream.prototype.resume = function resume () {
