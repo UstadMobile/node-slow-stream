@@ -26,8 +26,11 @@ function SlowStream (options) {
 util.inherits(SlowStream, Stream)
 
 SlowStream.prototype.write = function write (data) {
-    if(this.options.forceErrorAfter && this._writeCount > this.options.forceErrorAfter) {
+   if(this.options.forceErrorAfter && this._writeCount > this.options.forceErrorAfter) {
       this.emit('error', new Error( "Forced StreamError" ));
+      this._ended = true;
+      this.emit('end');
+      this.end();
   }else {
     this._writeCount++;
     this.queue.push(data)
